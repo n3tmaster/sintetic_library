@@ -11,7 +11,7 @@ For more information, visit https://sinteticproject.eu/
 To install the library, you can use pip:
 
 ```bash
-pip install sintetic_library
+pip install sintetic-library
 ```
 
 ## Use case
