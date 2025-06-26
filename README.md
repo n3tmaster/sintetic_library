@@ -3,8 +3,8 @@
 # Sintetic Library
 
 ## Description
-
-This Python library encapsulates a class called `SinteticClient`, which provides useful methods for use in other Python programs.
+Python client for Sintetic Project. This library provides a simple interface to interact with the Sintetic API, allowing users to manage and retrieve data related to synthetic datasets.
+For more information, visit https://sinteticproject.eu/
 
 ## Intallation
 
