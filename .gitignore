@@ -15,3 +15,8 @@ sintetic_library/build/lib/sintetic_library/core.py
 sintetic_library/src/sintetic_client.egg-info/dependency_links.txt
 .vscode/settings.json
 .gitignore
+sintetic_library/src/sintetic_library.egg-info/dependency_links.txt
+sintetic_library/src/sintetic_library.egg-info/PKG-INFO
+sintetic_library/src/sintetic_library.egg-info/requires.txt
+sintetic_library/src/sintetic_library.egg-info/SOURCES.txt
+sintetic_library/src/sintetic_library.egg-info/top_level.txt

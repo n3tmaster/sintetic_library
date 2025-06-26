@@ -4,9 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sintetic_library"
-version = "0.2.0"
-description = "Python client for Sintetic Project. This library provides a simple interface to interact with the Sintetic API, allowing users to manage and retrieve data related to synthetic datasets.
-               For more information, visit https://sinteticproject.eu/"
+version = "0.3.0"
+description = "Python client for Sintetic Project. This library provides a simple interface to interact with the Sintetic API, allowing users to manage and retrieve data related to synthetic datasets. For more information, visit https://sinteticproject.eu/"
 authors = [
     {name = "Leandro Rocchi", email = "leandro.rocchi@cnr.it"},
 ]
@@ -24,8 +23,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/n3tmaster/sintetic-client"
-"Bug Tracker" = "https://github.com/n3tmaster/sintetic-client/issues"
+Homepage = "https://github.com/n3tmaster/sintetic_library"
+"Bug Tracker" = "https://github.com/n3tmaster/sintetic_library/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
