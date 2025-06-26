@@ -1,0 +1,16 @@
+.DS_Store
+.pypirc
+New_SolsonaQ.hpr
+sintetic_mng.py
+test.xml
+sintetic_library/src/sintetic_client.egg-info/SOURCES.txt
+sintetic_library/src/sintetic_client.egg-info/requires.txt
+sintetic_library/src/sintetic_client.egg-info/PKG-INFO
+sintetic_library/src/sintetic_client.egg-info/top_level.txt
+sintetic_library/src/sintetic_library/__pycache__/__init__.cpython-312.pyc
+sintetic_library/src/sintetic_library/__pycache__/core.cpython-312.pyc
+sintetic_library/dist
+sintetic_library/build/lib/sintetic_library/__init__.py
+sintetic_library/build/lib/sintetic_library/core.py
+sintetic_library/src/sintetic_client.egg-info/dependency_links.txt
+.vscode/settings.json
