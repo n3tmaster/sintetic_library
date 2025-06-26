@@ -86,7 +86,7 @@ response = client.delete_forest_operation(forest_operation_id=id_forest_operatio
         
 # Delete Tree Processor using related ID
 response = client.delete_tree_processor(tree_processor_id=id_tree_processor)
+```
 
-## License
-
+## Use case
 This library is freely provided for use within the Sintetic project
