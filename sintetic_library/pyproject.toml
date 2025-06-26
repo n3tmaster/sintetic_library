@@ -24,8 +24,8 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tuoutente/sintetic-client"
-"Bug Tracker" = "https://github.com/tuoutente/sintetic-client/issues"
+Homepage = "https://github.com/n3tmaster/sintetic-client"
+"Bug Tracker" = "https://github.com/n3tmaster/sintetic-client/issues"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
