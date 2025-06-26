@@ -75,16 +75,16 @@ response = client.save_stan4d_object(
 # Extract Stan4D file ID    
 stand4d_id = response.json()["id"]
 
-# Get Stan4D file using related ID
+# Get Stan4D file using the associated ID
 response = client.get_stan4d_file(fileid=stand4d_id)
 
-# Delete Stan4D file using related ID
+# Delete Stan4D file using the associated ID
 response = client.delete_stan4d_file(fileid=stand4d_id)
 
-# Delete Forest Operation using related ID
+# Delete Forest Operation using the associated ID
 response = client.delete_forest_operation(forest_operation_id=id_forest_operation)
         
-# Delete Tree Processor using related ID
+# Delete Tree Processor using the associated ID
 response = client.delete_tree_processor(tree_processor_id=id_tree_processor)
 ```
 
