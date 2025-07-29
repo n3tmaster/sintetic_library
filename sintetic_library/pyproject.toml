@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sintetic_library"
-version = "0.3.0"
+version = "0.3.2"
 description = "Python client for Sintetic Project. This library provides a simple interface to interact with the Sintetic API, allowing users to manage and retrieve data related to synthetic datasets. For more information, visit https://sinteticproject.eu/"
 authors = [
     {name = "Leandro Rocchi", email = "leandro.rocchi@cnr.it"},

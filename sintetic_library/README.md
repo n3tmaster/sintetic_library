@@ -87,6 +87,40 @@ response = client.delete_forest_operation(forest_operation_id=id_forest_operatio
         
 # Delete Tree Processor using the associated ID
 response = client.delete_tree_processor(tree_processor_id=id_tree_processor)
+
+# Save new climate attachment with daily values
+
+# open csv file
+with open("testcsv.csv", "rb") as f:
+    csv_content = f.read()
+
+# save new climate attachment element
+response = client.save_climate_object(
+    filename="testcsv.csv",
+    climate_file=csv_content,
+    anomalistic=True,
+    forest_operation_id=id_forest_operation,
+    temporal_resolution=TemporalResolution.DAILY.value,
+    coverage_start_year=2025,
+    coverage_end_year=2025,
+    description="Some descriptions"
+)
+    
+# Save UUID    
+climate_object_id = response   
+
+# print new Climate attachment UUID
+print("Climate object saved successfully:", climate_object_id)    
+    
+# Get saved Climate Attachment info
+print("Retrieved Climate Attachment info:", client.get_climate_attachments(climate_object_id))   
+
+# Get Climate Attachment file    
+print("Retrieved Climate file contents:", client.get_climate_file(climate_object_id))
+
+# Delete Climate Attachment by given UUID    
+print("delete climate file:", client.delete_climate_file(climate_object_id))
+
 ```
 
 ## License

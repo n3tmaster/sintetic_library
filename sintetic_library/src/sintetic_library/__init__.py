@@ -1,13 +1,17 @@
 """
 Sintetic Client Library
-Una libreria Python per interfacciarsi con i servizi REST di Sintetic GeoDB
+Python library to interact with Sintetic GeoDB REST services.
 """
 
-from .core import SinteticClient
+from .core import SinteticClient, TemporalResolution, SINTETIC_ENDPOINTS
 
-__version__ = "0.1.0"
+__version__ = "0.3.0"
 __author__ = "Leandro Rocchi"
 __email__ = "leandro.rocchi@cnr.it"
 
-# Rendi disponibili le classi principali a livello di pacchetto
-__all__ = ["SinteticClient"]
+# Supply the TemporalResolution enum for temporal resolution options
+__all__ = [
+    "SinteticClient",
+    "TemporalResolution",
+    "SINTETIC_ENDPOINTS"
+]

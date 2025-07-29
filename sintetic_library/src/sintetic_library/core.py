@@ -8,6 +8,7 @@ from datetime import datetime
 import pytz
 from typing import Optional, Dict, Any
 import uuid
+from enum import Enum
 
 # Sintetic API Endpoints
 # These endpoints are used to interact with the Sintetic GeoDB API.
@@ -17,8 +18,15 @@ SINTETIC_ENDPOINTS = {
     "TREE_PROCESSORS": "/tree_processors",
     "FOREST_OPERATIONS": "/forest_operations",
     "FOREST_PROPERTIES": "/forest_properties",
+    "CLIMATE_ATTACHMENTS": "/climate_data_attachments"
    
 }
+
+class TemporalResolution(Enum):
+    YEARLY = "yearly"
+    MONTHLY = "monthly"
+    DAILY = "daily"
+
 
 
 class SinteticClient:
@@ -63,7 +71,11 @@ class SinteticClient:
             ).replace(tzinfo=pytz.UTC)
             
         except requests.exceptions.RequestException as e:
-            raise Exception(f"Exeption on: {str(e)}")
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
     # Get headers with authentication token
     def _get_headers(self) -> Dict[str, str]:
        
@@ -103,6 +115,9 @@ class SinteticClient:
             response.raise_for_status()
             return response
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
         
     # Get Stand4D Attachments list
@@ -135,6 +150,9 @@ class SinteticClient:
             ]
             return filtered_data
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
         
         
@@ -167,6 +185,9 @@ class SinteticClient:
             
             return response.text
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
         
     # Get Stand4D Attachment object from given ID
@@ -216,6 +237,9 @@ class SinteticClient:
             return response
  
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
         
         
@@ -247,6 +271,9 @@ class SinteticClient:
             
             return response.text
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
     
     # Get list forest properties
@@ -273,6 +300,9 @@ class SinteticClient:
             
             return response.text
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
     
     
@@ -304,6 +334,9 @@ class SinteticClient:
             
             return response.text
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
         
         
@@ -334,6 +367,9 @@ class SinteticClient:
             response.raise_for_status()
             return data["id"]
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
     
     
@@ -352,6 +388,7 @@ class SinteticClient:
         headers = self._get_headers()
         headers["Content-Type"] = "application/json"
         data["id"] = str(uuid.uuid4())
+        
         print("Data to create forest operation:", data)
         try:
             response = requests.post(
@@ -363,10 +400,13 @@ class SinteticClient:
             response.raise_for_status()
             return data["id"]
         except requests.exceptions.RequestException as e:
-            raise Exception(f"Exception on: {str(e)}")    
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")  
         
         
-    # Delete a new tree processor
+    # Delete stan4d4d file
     def delete_stan4d_file(self, fileid: str, **kwargs) -> Any:
        
         """        Delete a Stand4D file by its ID
@@ -391,6 +431,9 @@ class SinteticClient:
             response.raise_for_status()
             return response.status_code
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
         
     
@@ -414,6 +457,9 @@ class SinteticClient:
             
             return response.status_code
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
     
     # Delete a tree processor
@@ -443,5 +489,255 @@ class SinteticClient:
             
             return response.status_code
         except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
     
+    
+    # Get Climate Attachments list
+    # Returns:
+    #     List of climate attachments with created_at, name and url
+    def get_climate_attachments_list(self, **kwargs) -> Any:
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+            
+            response_data = response.json()
+            #extract a subset of data composed by created_at, name and url
+            filtered_data = [
+                {
+                    "id": item.get("id", ""),
+                    "created_at": item.get("created_at", ""),
+                    "name": item.get("name", ""),
+                    "url": item.get("url", ""),
+                    "description": item.get("description", ""),
+                    "type": item.get("type", ""),
+                    "forest_operation_id": item.get("related_overview", "").get("id","")
+                }
+                for item in response_data
+            ]
+            return filtered_data
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+    # Get Climate Attachment object from given ID
+    # Returns:
+    #     ID of the created attachment
+    def save_climate_object(self, filename: str, climate_file: bytes, anomalistic: bool,
+            forest_operation_id: str, temporal_resolution: TemporalResolution, coverage_start_year: int, coverage_end_year: int,
+            description: str = "", **kwargs) -> Any:
+        """
+            Get Climate Attachment CSV/JPEG file from given ID
+    
+            Args:
+                filename: Name of the file to save
+                climate_file: Content of the climate file (CSV/JPEG/XML)
+                anomalistic: Boolean indicating if the attachment is anomalistic
+                forest_operation_id: ID of the related forest operation
+                temporal_resolution: Temporal resolution of the attachment (yearly, monthly, daily) 
+                coverage_start_year: Start year of the coverage
+                coverage_end_year: End year of the coverage 
+                description: Description of the attachment (optional)
+                **kwargs: Optional parameters for the request
+        
+            Returns:
+                str: id of the created attachment
+        """
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}"
+        
+        if filename.lower().endswith(".xml"):
+            mime_type = "application/xml"
+        elif filename.lower().endswith(".jpeg") or filename.lower().endswith(".jpg"):
+            mime_type = "image/jpeg"
+        elif filename.lower().endswith(".csv"):
+            mime_type = "text/csv"
+        else:
+            mime_type = "application/octet-stream"  # fallback generico
+
+        
+        data = {
+            "attachment:anomalistic": "true" if anomalistic else "false",
+            "attachment:forest_operation_id": forest_operation_id,
+            "attachment:temporal_resolution": temporal_resolution,
+            "attachment:coverage_start_year": coverage_start_year,
+            "attachment:coverage_end_year": coverage_end_year,
+            "attachment:description": description,
+            "attachment:id": str(uuid.uuid4())
+                }
+        files = {
+            "attachment:file": (filename, climate_file, mime_type)
+        }
+
+        
+        headers = self._get_headers()
+        headers.pop("Content-Type", None)  # requests set Content-Type for MultiPart
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+     
+        
+        try:
+            #print("=== SinteticClient Request ===")
+            #print("URL:", url)
+            #print("Data:", data)
+            #print("Headers:", headers)
+            #print("Files:", files)
+            #print("Kwargs:", kwargs)
+            #print("=============================")
+            response = requests.post(
+                url,
+                data=data,
+                files=files,
+                **kwargs
+            )
+            response.raise_for_status()      
+            return data["attachment:id"]
+ 
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+
+    # Get Climate Attachments list
+    # Returns:
+    #     List of climate attachments with created_at, name and url
+    def get_climate_attachments(self,climate_id: str, **kwargs) -> Any:
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}/{climate_id}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+            
+            response_data = response.json()
+            # If response_data is a list, filter the data
+            # to extract a subset of fields
+            if isinstance(response_data, list):
+                filtered_data = [
+                    {
+                        "id": item.get("id", ""),
+                        "created_at": item.get("created_at", ""),
+                        "name": item.get("name", ""),
+                        "url": item.get("url", ""),
+                        "description": item.get("description", ""),
+                        "type": item.get("type", ""),
+                        "forest_operation_id": item.get("related_overview", "").get("id","")
+                    }
+                    for item in response_data
+                ]
+            # If it's a single object, filter the data
+            elif isinstance(response_data, dict):
+                filtered_data = [{
+                    "id": response_data.get("id", ""),
+                    "created_at": response_data.get("created_at", ""),
+                    "name": response_data.get("name", ""),
+                    "url": response_data.get("url", ""),
+                    "description": response_data.get("description", ""),
+                    "type": response_data.get("type", ""),
+                    "forest_operation_id": response_data.get("related_overview", "").get("id","")
+                }]
+            else:
+                filtered_data = []
+            return filtered_data
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+        
+    # Get Climate Attachment object from given ID
+    # Returns:
+    #     CSV or Jpeg object of the attachment with given ID
+    def get_climate_file(self, fileid: str, **kwargs) -> Any:
+        """
+            Get Climate Attachment file from given ID
+    
+            Args:
+                fileid: ID of the attachment to retrieve
+                **kwargs: Optional parameters for the request
+        
+            Returns:
+                CSV or Jpeg content of the attachment
+        """
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}/files/{fileid}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+        
+            
+            content_type = response.headers.get("Content-Type", "")
+            if "text/csv" in content_type:
+                # Return the content as a string
+                return response.text
+            elif "image/jpeg" in content_type or "image/jpg" in content_type:
+                # Return the content as bytes
+                return response.content
+            else:
+                # Unknown content type, return as bytes
+                return response.content
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+        
+    # Delete climate file
+    def delete_climate_file(self, fileid: str, **kwargs) -> Any:
+       
+        """        Delete a Climate Attachment file by its ID
+        Args:
+            fileid: ID of the Stand4D file to delete
+            **kwargs: Optional parameters for the request
+        Returns:
+            int: HTTP status code of the response
+        """
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}/{fileid}"
+        headers = self._get_headers()
+        headers["Content-Type"] = "application/json"
+        
+        try:
+            response = requests.delete(
+                url=url,
+                headers=headers,
+                
+            )
+            
+            response.raise_for_status()
+            return response.status_code
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")

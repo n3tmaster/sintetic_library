@@ -20,3 +20,5 @@ sintetic_library/src/sintetic_library.egg-info/PKG-INFO
 sintetic_library/src/sintetic_library.egg-info/requires.txt
 sintetic_library/src/sintetic_library.egg-info/SOURCES.txt
 sintetic_library/src/sintetic_library.egg-info/top_level.txt
+sintetic_sample_climate.py
+testcsv.csv
