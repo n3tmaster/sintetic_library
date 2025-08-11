@@ -22,3 +22,7 @@ sintetic_library/src/sintetic_library.egg-info/SOURCES.txt
 sintetic_library/src/sintetic_library.egg-info/top_level.txt
 sintetic_sample_climate.py
 testcsv.csv
+ndvi_august.csv
+ndvi_july.csv
+sintetic_vegetation.py
+.gitignore

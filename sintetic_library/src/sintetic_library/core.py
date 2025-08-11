@@ -18,7 +18,9 @@ SINTETIC_ENDPOINTS = {
     "TREE_PROCESSORS": "/tree_processors",
     "FOREST_OPERATIONS": "/forest_operations",
     "FOREST_PROPERTIES": "/forest_properties",
-    "CLIMATE_ATTACHMENTS": "/climate_data_attachments"
+    "CLIMATE_ATTACHMENTS": "/climate_data_attachments",
+    "VEGETATION_ATTACHMENTS": "/vegetation_data_attachments",
+    "SUBCOMPARTMENTS": "/subcompartments"
    
 }
 
@@ -27,7 +29,9 @@ class TemporalResolution(Enum):
     MONTHLY = "monthly"
     DAILY = "daily"
 
-
+class SubcompartmentType(Enum):
+    FOREST_OPERATION = "forest_operation"
+    FOREST_PROPERTY = "forest_property"
 
 class SinteticClient:
     # SinteticClient Class constructor
@@ -246,7 +250,7 @@ class SinteticClient:
     # Get list forest operations
     # Returns:
     #       json array of forest operations with created_at, name and url
-    def get_list_forest_operations(self, **kwargs) -> Any:
+    def get_forest_operations_list(self, **kwargs) -> Any:
         """
             Get list of forest operations
             
@@ -277,7 +281,7 @@ class SinteticClient:
             raise Exception(f"Exception on: {str(e)}")
     
     # Get list forest properties
-    def get_list_forest_properties(self, **kwargs) -> Any:
+    def get_forest_properties_list(self, **kwargs) -> Any:
         """
             Get list of forest properties
             Args:
@@ -309,7 +313,7 @@ class SinteticClient:
     # Get list tree processors
     # Returns:
     #     json array of tree processors with created_at, name and url
-    def get_list_tree_processors(self, **kwargs) -> Any:
+    def get_tree_processors_list(self, **kwargs) -> Any:
         """
             Get list of tree processors
             
@@ -498,7 +502,7 @@ class SinteticClient:
     # Get Climate Attachments list
     # Returns:
     #     List of climate attachments with created_at, name and url
-    def get_climate_attachments_list(self, **kwargs) -> Any:
+    def get_climate_list(self, **kwargs) -> Any:
         
         url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}"
         headers = self._get_headers()
@@ -617,7 +621,7 @@ class SinteticClient:
     # Get Climate Attachments list
     # Returns:
     #     List of climate attachments with created_at, name and url
-    def get_climate_attachments(self,climate_id: str, **kwargs) -> Any:
+    def get_climate_data(self,climate_id: str, **kwargs) -> Any:
         
         url = f"{self.base_url}{SINTETIC_ENDPOINTS['CLIMATE_ATTACHMENTS']}/{climate_id}"
         headers = self._get_headers()
@@ -741,3 +745,363 @@ class SinteticClient:
             if hasattr(e, "response") and e.response is not None:
                 print("Error Body: ", e.response.text)
             raise Exception(f"Exception on: {str(e)}")
+        
+        
+
+    # Get Vegetation Attachments list
+    # Returns:
+    #     List of vegetation attachments with created_at, name and url
+    def get_vegetation_list(self, **kwargs) -> Any:
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['VEGETATION_ATTACHMENTS']}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+            
+            response_data = response.json()
+            #extract a subset of data composed by created_at, name and url
+            filtered_data = [
+                {
+                    "start_date": item.get("start_date", ""),
+                    "end_date": item.get("end_date", ""),
+                    "created_at": item.get("created_at", ""),
+                    "update_at": item.get("update_at", ""),
+                    "forest_operation_id": item.get("related_overview", "").get("forest_operation","").get("id", ""),
+                    "subcompartment": item.get("related_overview", "").get("subcompartment","").get("id", ""),
+                }
+                
+                for item in response_data
+            ]
+            return filtered_data
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+    # save a vegetation object
+    # Returns:
+    #     Status code of the response:
+    #     201 if the object was created successfully
+    #.    204 no content. attachment file appended to existing object
+    def save_vegetation_object(self, filename: str, vegetation_file: bytes, subcompartment_id: str, **kwargs) -> Any:
+        """
+            Get Climate Attachment CSV/JPEG file from given ID
+    
+            Args:
+                filename: Name of the file to save
+                vegetation_file: Content of the climate file (CSV)
+                subcompartment_id: ID of the related subcompartment
+                **kwargs: Optional parameters for the request
+        
+            Returns:
+                str: id of the created attachment
+        """
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['VEGETATION_ATTACHMENTS']}"
+        
+        if filename.lower().endswith(".xml"):
+            mime_type = "application/xml"
+        elif filename.lower().endswith(".jpeg") or filename.lower().endswith(".jpg"):
+            mime_type = "image/jpeg"
+        elif filename.lower().endswith(".csv"):
+            mime_type = "text/csv"
+        else:
+            mime_type = "application/octet-stream"  # fallback generico
+
+        
+        data = {
+            
+            "attachment:subcompartment_id": subcompartment_id,
+               }
+        files = {
+            "attachment:file": (filename, vegetation_file, mime_type)
+        }
+
+        
+        headers = self._get_headers()
+        headers.pop("Content-Type", None)  # requests set Content-Type for MultiPart
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+     
+        
+        try:
+            #print("=== SinteticClient Request ===")
+            #print("URL:", url)
+            #print("Data:", data)
+            #print("Headers:", headers)
+            #print("Files:", files)
+            #print("Kwargs:", kwargs)
+            #print("=============================")
+            response = requests.post(
+                url,
+                data=data,
+                files=files,
+                **kwargs
+            )
+            response.raise_for_status()      
+            return response.status_code
+ 
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+
+    # Get Vegetation Attachment data from given ID
+    # Returns:
+    #     json object with vegetation attachment data
+    def get_vegetation_data(self, subcompartment_id: str, **kwargs) -> Any:
+       
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['VEGETATION_ATTACHMENTS']}/{subcompartment_id}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+        
+            
+            content_type = response.headers.get("Content-Type", "")
+            if "text/csv" in content_type:
+                # Return the content as a string
+                return response.text
+            elif "image/jpeg" in content_type or "image/jpg" in content_type:
+                # Return the content as bytes
+                return response.content
+            else:
+                # Unknown content type, return as bytes
+                return response.content
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}") 
+
+    # Delete climate file
+    def delete_vegetation_file(self, subcompartment_id: str, **kwargs) -> Any:
+       
+        """        Delete a Vegetation Attachment file by its ID
+        Args:
+            subcompartment_id: ID of the file to delete
+            **kwargs: Optional parameters for the request
+        Returns:
+            int: HTTP status code of the response
+        """
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['VEGETATION_ATTACHMENTS']}/{subcompartment_id}"
+        headers = self._get_headers()
+        headers["Content-Type"] = "application/json"
+        
+        try:
+            response = requests.delete(
+                url=url,
+                headers=headers,
+                
+            )
+            
+            response.raise_for_status()
+            return response.status_code
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+
+    # Get list subcompartments
+    # Returns:
+    #       json array of subcompartment with created_at, name and url
+    def get_subcompartments_list(self, **kwargs) -> Any:
+        """
+            Get list of subcompartments
+            
+            Args:
+                **kwargs: Optional parameters for the request
+        
+            Returns:
+                List of subcompartments with created_at, name and url
+        """
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['SUBCOMPARTMENTS']}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+        
+            
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+
+    # Get list subcompartments
+    # Returns:
+    #       json array of subcompartment with created_at, name and url
+    def get_subcompartment(self, subcompartment_id: str, **kwargs) -> Any:
+        """
+            Get list of subcompartments
+            
+            Args:
+                **kwargs: Optional parameters for the request
+        
+            Returns:
+                List of subcompartments with created_at, name and url
+        """
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['SUBCOMPARTMENTS']}/{subcompartment_id}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+        
+            
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+        
+    
+    # Create a new subcompartment
+    def create_subcompartment(self, name: str, subcompartmentable_type: SubcompartmentType, 
+                              subcompartmentable_id: str, minx: float, miny: float, maxx: float, maxy: float,**kwargs) -> Any:
+        """
+        Create a new subcompartment
+        Args:
+            name: Name of the subcompartment
+            subcompartment_type: Type of the subcompartment (forest_operation, forest_property)
+            minx: Minimum x coordinate of the subcompartment boundary
+            miny: Minimum y coordinate of the subcompartment boundary
+            maxx: Maximum x coordinate of the subcompartment boundary
+            maxy: Maximum y coordinate of the subcompartment boundary
+            **kwargs: Optional parameters for the request
+        Returns:
+            JSON response from the API
+        """
+        
+        # Generate a unique ID for the tree processor
+        newsubid = str(uuid.uuid4())
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['SUBCOMPARTMENTS']}"
+        headers = self._get_headers()
+        headers["Content-Type"] = "application/json"
+        
+        try:
+            data = {
+            
+            "id": newsubid,
+            "subcompartmentable_id": subcompartmentable_id,
+            "subcompartmentable_type": subcompartmentable_type,
+            "name": name,
+            "boundaries": {     
+                "type": "MultiPolygon",
+                "coordinates": [[[[minx, miny], [maxx, miny], [maxx, maxy], [minx, maxy], [minx, miny]]]]
+                }   
+            }
+            response = requests.post(
+                url=url,
+                headers=headers,
+                json=data  # requests gestirà automaticamente la serializzazione in JSON
+            )
+            
+            response.raise_for_status()
+            return newsubid
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+    # Delete subcompartment
+    def delete_subcompartment(self, subcompartment_id: str, **kwargs) -> Any:
+       
+        """        Delete a subcompartment by its ID
+        Args:
+            subcompartment_id: ID to delete
+            **kwargs: Optional parameters for the request
+        Returns:
+            int: HTTP status code of the response
+        """
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['SUBCOMPARTMENTS']}/{subcompartment_id}"
+        headers = self._get_headers()
+        headers["Content-Type"] = "application/json"
+        
+        try:
+            response = requests.delete(
+                url=url,
+                headers=headers,
+                
+            )
+            
+            response.raise_for_status()
+            return response.status_code
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+        
+        
+    # Get Vegetation Attachment file from given ID
+    # Returns:
+    #     CSV or Jpeg object of the attachment with given ID
+    def get_vegetation_file(self, fileid: str, **kwargs) -> Any:
+        
+        url = f"{self.base_url}{SINTETIC_ENDPOINTS['VEGETATION_ATTACHMENTS']}/files/{fileid}"
+        headers = self._get_headers()
+        
+        if "headers" in kwargs:
+            headers.update(kwargs["headers"])
+        kwargs["headers"] = headers
+        
+        try:
+            method="GET"
+            response = requests.request(method, url, **kwargs)
+            response.raise_for_status()
+        
+            
+            content_type = response.headers.get("Content-Type", "")
+            if "text/csv" in content_type:
+                # Return the content as a string
+                return response.text
+            elif "image/jpeg" in content_type or "image/jpg" in content_type:
+                # Return the content as bytes
+                return response.content
+            else:
+                # Unknown content type, return as bytes
+                return response.content
+        except requests.exceptions.RequestException as e:
+            print("Exeption:", str(e))
+            if hasattr(e, "response") and e.response is not None:
+                print("Error Body: ", e.response.text)
+            raise Exception(f"Exception on: {str(e)}")
+
+    
