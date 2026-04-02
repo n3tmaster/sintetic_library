@@ -13,7 +13,7 @@ from enum import Enum
 # Sintetic API Endpoints
 # These endpoints are used to interact with the Sintetic GeoDB API.
 SINTETIC_ENDPOINTS = {
-    "AUTH_LOGIN": "/auth/login",
+    "AUTH_LOGIN": "/auth/bearer_logins",
     "STAN_FOR_D": "/stanford_attachments",
     "TREE_PROCESSORS": "/tree_processors",
     "FOREST_OPERATIONS": "/forest_operations",
@@ -35,56 +35,48 @@ class SubcompartmentType(Enum):
 
 class SinteticClient:
     # SinteticClient Class constructor
-    def __init__(self, email: str, password: str, base_url: str = "https://api.geodb-staging.sintetic.iit.cnr.it"):
+    def __init__(self, token: str, base_url: str = "https://api.geodb-staging.sintetic.iit.cnr.it"):
         self.base_url = base_url
-        self.email = email
-        self.password = password
-        self.token: Optional[str] = None
-        self.token_expiry: Optional[datetime] = None
-        
+        self.token = token
+    
     # Check if the token is valid    
-    def _check_token_validity(self) -> bool:
+    #def _check_token_validity(self) -> bool:
         
-        if not self.token or not self.token_expiry:
-            return False
+    #    if not self.token or not self.token_expiry:
+    #        return False
         
-        now = datetime.now(pytz.UTC)
-        return now < self.token_expiry
+    #    now = datetime.now(pytz.UTC)
+    #    return now < self.token_expiry
 
     # Login method to authenticate and obtain a new token
-    def _login(self) -> None:
+    #def _login(self) -> None:
        
-        login_url = f"{self.base_url}{SINTETIC_ENDPOINTS['AUTH_LOGIN']}"
-        login_data = {
-            "login": {
-                "email": self.email,
-                "password": self.password
-            }
-        }
+    #    login_url = f"{self.base_url}{SINTETIC_ENDPOINTS['AUTH_LOGIN']}/{self.token}"
         
-        try:
+        
+    #    try:
             # Perform login request
-            response = requests.post(login_url, json=login_data)
-            response.raise_for_status()
+    #        response = requests.get(login_url)
+    #        response.raise_for_status()
             
-            data = response.json()
-            self.token = data["login"]["token"]
-            self.token_expiry = datetime.strptime(
-                data["login"]["expiry"], 
-                "%Y-%m-%dT%H:%M:%SZ"
-            ).replace(tzinfo=pytz.UTC)
-            
-        except requests.exceptions.RequestException as e:
-            print("Exeption:", str(e))
-            if hasattr(e, "response") and e.response is not None:
-                print("Error Body: ", e.response.text)
-            raise Exception(f"Exception on: {str(e)}")
+    #        data = response.json()
+    #        self.token = data["name"]
+    #        self.token_expiry = datetime.strptime(
+    #            data["inactive_at"], 
+    #            "%Y-%m-%dT%H:%M:%SZ"
+    #        ).replace(tzinfo=pytz.UTC)
+    #        print(f"Login successful. Token expires at: {self.token_expiry} with token: {self.token}")
+    #    except requests.exceptions.RequestException as e:
+    #        print("Exeption:", str(e))
+    #            print("Error Body: ", e.response.text)
+    ##        if hasattr(e, "response") and e.response is not None:
+    #        raise Exception(f"Exception on: {str(e)}")
         
     # Get headers with authentication token
     def _get_headers(self) -> Dict[str, str]:
        
-        if not self._check_token_validity():
-            self._login()
+        #if not self._check_token_validity():
+        #    self._login()
         
         return {
             "Authorization": f"Bearer {self.token}",
