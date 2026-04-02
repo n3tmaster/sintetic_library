@@ -20,10 +20,12 @@ pip install sintetic-library
 ```python
 from sintetic_library import SinteticClient
 
-# Create istance of SinteticClient using your Sintetic account
+# Create an instance of SinteticClient using your Sintetic token.
+# The token is issued by your administrator with a specific scope.
+#
 client = SinteticClient(
-        email="XXXXXX",
-        password="YYYYYYY"
+        token="YOUR TOKEN",
+        base_url="base URL for Sintetic GeoDB API"  # If not specified, SinteticClient will use the staging server API instead of the production one
     )
 
 #######
